@@ -16,7 +16,11 @@ class BreakingBadApi {
     dio = Dio(options);
   }
   Future<List<dynamic>> getCharacters() async {
-    final response = await dio.get('character');
-    return response.data;
+    try {
+      Response response = await dio.get('characters');
+      return response.data;
+    } catch (e) {
+      return [];
+    }
   }
 }
