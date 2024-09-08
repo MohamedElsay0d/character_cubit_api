@@ -19,10 +19,10 @@ class BreakingBadApi {
   }
   Future<List<dynamic>> getCharacters() async {
     try {
-      Response response = await dio.get('characters');
-      log(response.data['results']);
+      Response response = await dio.get('character');
       return response.data['results'];
     } catch (e) {
+      print(e.toString());
       return [];
     }
   }
