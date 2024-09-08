@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
 
 import '../../constant/Strings.dart';
@@ -18,7 +20,8 @@ class BreakingBadApi {
   Future<List<dynamic>> getCharacters() async {
     try {
       Response response = await dio.get('characters');
-      return response.data;
+      log(response.data['results']);
+      return response.data['results'];
     } catch (e) {
       return [];
     }
