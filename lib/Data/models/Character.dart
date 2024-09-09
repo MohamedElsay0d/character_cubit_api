@@ -1,17 +1,9 @@
 class Character {
-  int? id;
-  String? name;
-  String? status;
-  String? gender;
-  String? image;
-
-  Character({
-    this.id,
-    this.name,
-    this.status,
-    this.gender,
-    this.image,
-  });
+  late int id;
+  late String name;
+  late String status;
+  late String gender;
+  late String image;
 
   Character.fromJson(Map<String, dynamic> json) {
     id = json['id'];
