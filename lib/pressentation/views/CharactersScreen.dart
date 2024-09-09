@@ -1,10 +1,12 @@
 import 'package:character_cubit_api/Data/models/Character.dart';
+import 'package:character_cubit_api/pressentation/widgets/no_internet_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 
 import '../../constant/Colors.dart';
 import '../../cubit/character_cubit.dart';
-import '../widgets/character_item.dart';
+import '../widgets/body_all_character_screen.dart';
 
 class Charactersscreen extends StatefulWidget {
   const Charactersscreen({super.key});
@@ -15,7 +17,7 @@ class Charactersscreen extends StatefulWidget {
 
 class _CharactersscreenState extends State<Charactersscreen> {
   late List<Character> allCharacters;
-  late List<Character> searchedCharacters;
+  List<Character> searchedCharacters = [];
   bool isSearching = false;
   final controller = TextEditingController();
 
@@ -110,45 +112,56 @@ class _CharactersscreenState extends State<Charactersscreen> {
               ),
         actions: _buildAppBarActions(),
       ),
-      body: BlocBuilder<CharacterCubit, CharacterState>(
+      body: OfflineBuilder(
+        connectivityBuilder: (
+          BuildContext context,
+          List<ConnectivityResult> connectivity,
+          Widget? child,
+        ) {
+          final bool connected = connectivity.isNotEmpty &&
+              connectivity.last != ConnectivityResult.none;
+          if (connected) {
+            return BlocBuilder<CharacterCubit, CharacterState>(
+              builder: (context, state) {
+                if (state is CharacterLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is CharacterLoaded) {
+                  allCharacters = state.characters;
+                  return BodyofAllCharacterScreen(
+                    controller: controller,
+                    allCharacters: allCharacters,
+                    searchedCharacters: searchedCharacters,
+                  );
+                } else if (state is CharacterError) {
+                  return Center(child: Text('Error: ${state.message}'));
+                }
+                return const Center(child: Text('No data available'));
+              },
+            );
+          } else {
+            return const NoInternetConnection();
+          }
+        },
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+}
+/*
+      BlocBuilder<CharacterCubit, CharacterState>(
         builder: (context, state) {
           if (state is CharacterLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is CharacterLoaded) {
             allCharacters = state.characters;
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 4 / 6,
-                        crossAxisSpacing: 1,
-                        mainAxisSpacing: 1,
-                      ),
-                      shrinkWrap: true,
-                      physics: const ClampingScrollPhysics(),
-                      padding: EdgeInsets.zero,
-                      itemCount: controller.text.isEmpty
-                          ? allCharacters.length
-                          : searchedCharacters.length,
-                      itemBuilder: (context, index) {
-                        return CharacterItem(
-                          character: controller.text.isEmpty
-                              ? allCharacters[index]
-                              : searchedCharacters[index],
-                        );
-                      }),
-                ],
-              ),
-            );
+            return BodyofAllCharacterScreen(
+                controller: controller,
+                allCharacters: allCharacters,
+                searchedCharacters: searchedCharacters);
           } else if (state is CharacterError) {
             return Center(child: Text('Error: ${state.message}'));
           }
           return const Center(child: Text('No data available'));
         },
       ),
-    );
-  }
-}
+      */
