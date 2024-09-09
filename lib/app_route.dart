@@ -2,6 +2,7 @@ import 'package:character_cubit_api/Data/repositry/breakingbad_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'Data/models/Character.dart';
 import 'Data/web_services/breakingbad_api.dart';
 import 'constant/Strings.dart';
 import 'cubit/character_cubit.dart';
@@ -25,7 +26,11 @@ class AppRoute {
                   child: const Charactersscreen(),
                 ));
       case characterDetailsScreen:
-        return MaterialPageRoute(builder: (_) => const CharacterDetails());
+        final character = settings.arguments as Character;
+        return MaterialPageRoute(
+            builder: (_) => CharacterDetails(
+                  character: character,
+                ));
       default:
         return MaterialPageRoute(builder: (context) => Container());
     }
